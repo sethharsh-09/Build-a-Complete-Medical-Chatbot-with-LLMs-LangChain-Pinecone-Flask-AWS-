@@ -1,14 +1,19 @@
 body,html{
-	height: 100%;
+	min-height: 100%;
 	margin: 0;
 	background: rgb(44, 47, 59);
    background: -webkit-linear-gradient(to right, rgb(40, 59, 34), rgb(54, 60, 70), rgb(32, 32, 43));
 	background: linear-gradient(to right, rgb(38, 51, 61), rgb(50, 55, 65), rgb(33, 33, 78));
 }
 
+body{
+	min-height: 100vh;
+	color: white;
+}
+
 .chat{
-	margin-top: auto;
-	margin-bottom: auto;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 .card{
 	height: 500px;
@@ -179,6 +184,34 @@ border-radius: 0 0 15px 15px !important;
 }
 .msg_head{
 	position: relative;
+}
+.doctor-contact{
+	padding: 1.25rem;
+	border-radius: 15px;
+	background-color: rgba(0,0,0,0.4);
+	color: white;
+}
+.doctor-contact h2{
+	font-size: 1.35rem;
+}
+.doctor-contact .form-control{
+	background-color: rgba(0,0,0,0.3);
+	border: 1px solid rgba(255,255,255,0.25);
+	color: white;
+}
+.doctor-contact .form-control:focus{
+	box-shadow: none;
+	border-color: #80bdff;
+}
+.doctor-contact .form-control option{
+	color: black;
+}
+.doctor-contact label{
+	margin-bottom: 0.25rem;
+}
+.doctor-contact .form-text,
+.contact-setup-notice{
+	color: rgba(255,255,255,0.75);
 }
 #action_menu_btn{
 	position: absolute;

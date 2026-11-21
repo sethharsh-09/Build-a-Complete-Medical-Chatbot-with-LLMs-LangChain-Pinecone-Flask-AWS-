@@ -14,8 +14,8 @@
 	
 	
 	<body>
-		<div class="container-fluid h-100">
-			<div class="row justify-content-center h-100">		
+		<div class="container-fluid py-4">
+			<div class="row justify-content-center">
 				<div class="col-md-8 col-xl-6 chat">
 					<div class="card">
 						<div class="card-header msg_head">
@@ -44,12 +44,74 @@
 							</form>
 						</div>
 					</div>
+					<section class="doctor-contact mt-4" aria-labelledby="doctorContactTitle">
+						<h2 id="doctorContactTitle">Contact the medical team</h2>
+						<p>Request an appointment or callback. Please do not include urgent or highly sensitive medical details.</p>
+						{% if doctor_phone %}
+						<p>Prefer to call? <a href="tel:{{ doctor_phone }}">{{ doctor_phone }}</a></p>
+						{% endif %}
+						{% if not doctor_contact_email %}
+						<p class="contact-setup-notice" role="status">Appointment requests are not configured yet. The clinic must set DOCTOR_CONTACT_EMAIL in its environment settings.</p>
+						{% endif %}
+						<form id="doctorContactForm" data-contact-email="{{ doctor_contact_email }}">
+							<div class="form-group">
+								<label for="patientName">Name</label>
+								<input class="form-control" id="patientName" name="name" autocomplete="name" required>
+							</div>
+							<div class="form-row">
+								<div class="form-group col-md-6">
+									<label for="patientEmail">Email</label>
+									<input class="form-control" id="patientEmail" name="email" type="email" autocomplete="email">
+								</div>
+								<div class="form-group col-md-6">
+									<label for="patientPhone">Phone</label>
+									<input class="form-control" id="patientPhone" name="phone" type="tel" autocomplete="tel">
+								</div>
+							</div>
+							<small class="form-text">Provide at least one way for the team to reach you.</small>
+							<div class="form-group mt-3">
+								<label for="preferredTime">Preferred appointment or callback time</label>
+								<input class="form-control" id="preferredTime" name="preferred_time" type="datetime-local">
+							</div>
+							<div class="form-group">
+								<label for="contactReason">Brief reason for contact</label>
+								<textarea class="form-control" id="contactReason" name="reason" rows="3" maxlength="500" required></textarea>
+							</div>
+							<button class="btn btn-primary" type="submit" {% if not doctor_contact_email %}disabled{% endif %}>Request appointment</button>
+							<p id="contactFormStatus" class="mt-2" role="status" aria-live="polite"></p>
+						</form>
+					</section>
 				</div>
 			</div>
 		</div>
 		
 		<script>
 			$(document).ready(function() {
+				$("#doctorContactForm").on("submit", function(event) {
+					event.preventDefault();
+					const form = this;
+					const email = $("#patientEmail").val().trim();
+					const phone = $("#patientPhone").val().trim();
+					const emailInput = document.getElementById("patientEmail");
+					emailInput.setCustomValidity(email || phone ? "" : "Enter an email address or phone number so the team can contact you.");
+					if (!form.reportValidity()) {
+						return;
+					}
+
+					const body = [
+						"Appointment or callback request",
+						"",
+						"Name: " + $("#patientName").val().trim(),
+						"Email: " + (email || "Not provided"),
+						"Phone: " + (phone || "Not provided"),
+						"Preferred time: " + ($("#preferredTime").val() || "Not specified"),
+						"Reason: " + $("#contactReason").val().trim(),
+					].join("\n");
+					const subject = encodeURIComponent("Appointment or callback request");
+					window.location.href = "mailto:" + form.dataset.contactEmail + "?subject=" + subject + "&body=" + encodeURIComponent(body);
+					$("#contactFormStatus").text("Your email app should open with the request. Review it and press Send to contact the team.");
+				});
+
 				$("#messageArea").on("submit", function(event) {
 					const date = new Date();
 					const hour = date.getHours();

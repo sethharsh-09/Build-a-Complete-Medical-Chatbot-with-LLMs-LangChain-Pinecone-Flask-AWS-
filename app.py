@@ -12,7 +12,7 @@ from pinecone import Pinecone
 
 from pinecone_text.sparse import BM25Encoder
 
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 
 from langchain.schema import Document
 
@@ -43,15 +43,28 @@ app = Flask(__name__)
 # =========================================================
 
 load_dotenv()
+load_dotenv(
+    os.path.join(
+        os.path.dirname(__file__),
+        "src",
+        ".env"
+    )
+)
 
 
 PINECONE_API_KEY = os.environ.get(
     "PINECONE_API_KEY"
 )
 
-OPENAI_API_KEY = os.environ.get(
-    "OPENAI_API_KEY"
-)
+DOCTOR_CONTACT_EMAIL = os.environ.get(
+    "DOCTOR_CONTACT_EMAIL",
+    ""
+).strip()
+
+DOCTOR_PHONE = os.environ.get(
+    "DOCTOR_PHONE",
+    ""
+).strip()
 
 INDEX_NAME = os.environ.get(
     "PINECONE_INDEX_NAME",
@@ -86,13 +99,6 @@ if not PINECONE_API_KEY:
 
     raise ValueError(
         "PINECONE_API_KEY is missing."
-    )
-
-
-if not OPENAI_API_KEY:
-
-    raise ValueError(
-        "OPENAI_API_KEY is missing."
     )
 
 
@@ -305,8 +311,8 @@ def hybrid_search(
 # LLM
 # =========================================================
 
-chatModel = ChatOpenAI(
-    model="gpt-4o",
+chatModel = ChatOllama(
+    model="llama3.2:latest",
     temperature=0
 )
 
@@ -351,7 +357,9 @@ question_answer_chain = (
 def index():
 
     return render_template(
-        "chat.html"
+        "chat.html",
+        doctor_contact_email=DOCTOR_CONTACT_EMAIL,
+        doctor_phone=DOCTOR_PHONE
     )
 
 
@@ -380,11 +388,6 @@ def chat():
         if not msg:
 
             return "Please enter a question."
-
-
-        print(
-            f"User Question: {msg}"
-        )
 
 
         # -------------------------------------------------
@@ -442,20 +445,7 @@ def chat():
 
 
         # -------------------------------------------------
-        # NO DOCUMENT FOUND
-        # -------------------------------------------------
-
-        if not documents:
-
-            return (
-                "I don't know the answer "
-                "from the available medical "
-                "documents."
-            )
-
-
-        # -------------------------------------------------
-        # SEND CONTEXT + QUESTION TO GPT-4o
+        # SEND CONTEXT + QUESTION TO LOCAL MODEL
         # -------------------------------------------------
 
         response = (
@@ -466,13 +456,6 @@ def chat():
                 }
             )
         )
-
-
-        print(
-            "Response:",
-            response
-        )
-
 
         return str(response)
 
