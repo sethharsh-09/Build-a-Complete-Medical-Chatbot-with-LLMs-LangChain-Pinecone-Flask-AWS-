@@ -25,12 +25,20 @@ pip install -r requirements.txt
 ```
 
 
-### Create a `.env` file in the root directory and add your Pinecone & openai credentials as follows:
+### Configure the project
 
 ```ini
-PINECONE_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-OPENAI_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+PINECONE_API_KEY="your-pinecone-api-key"
+# Optional: enable appointment requests and/or direct-call links
+DOCTOR_CONTACT_EMAIL="clinic@example.com"
+DOCTOR_PHONE="+15551234567"
 ```
+
+The app reads these settings from `.env` in the project root or `src/.env`.
+Install and start [Ollama](https://ollama.com/), then download the local model with
+`ollama pull llama3.2`. Appointment requests open the patient's email application;
+the clinic email must be configured above, and the patient must send the prepared message.
+Do not configure personal or private contact details unless they are authorized for clinic use.
 
 
 ```bash
@@ -54,7 +62,7 @@ open up localhost:
 - Python
 - LangChain
 - Flask
-- GPT
+- Ollama
 - Pinecone
 
 
